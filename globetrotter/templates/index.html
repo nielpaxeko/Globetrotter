@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GlobeTrotter</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <h1>Track Your Countries</h1>
+
+    <!-- Input for searching countries -->
+    <input type="text" id="countrySearch" list="countryList" placeholder="Search country">
+    <datalist id="countryList">
+    </datalist>
+
+    <button onclick="addCountry('visited')">Add to Visited</button>
+    <button onclick="addCountry('want_to_visit')">Add to Want to Visit</button>
+    <div id="map" style="height: 500px;"></div>
+
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="/static/js/map.js"></script>
+</body>
+</html>
