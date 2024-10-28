@@ -3,11 +3,11 @@ from flask import Flask, render_template, jsonify, request
 
 app = Flask(__name__)
 
-# In-memory data to store the countries status
+# Store the countries status
 visited_countries = []
 want_to_visit_countries = []
 
-# Load country GeoJSON data (pre-load once when app starts)
+# Load country GeoJSON data
 with open('static/js/countries.geojson') as f:
     geojson_data = json.load(f)
 
@@ -24,7 +24,7 @@ def add_country():
     visited = data.get('visited', [])
     want_to_visit = data.get('want_to_visit', [])
 
-    # Validate countries in both lists
+    # Validate countries
     visited_countries.clear()
     want_to_visit_countries.clear()
 
