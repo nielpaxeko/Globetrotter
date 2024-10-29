@@ -3,23 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GlobeTrotter</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
-    <link rel="stylesheet" href="/static/css/styles.css">
+    <title>Travel Map</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        /* Add your styles here */
+        #map { height: 600px; }
+        .tab {
+            cursor: pointer;
+            padding: 10px;
+            display: inline-block;
+            background-color: #f1f1f1;
+            border: 1px solid #ccc;
+            margin-right: 5px; /* Added margin for spacing */
+        }
+        #citySearchSection,
+        #countrySearchSection {
+            margin-top: 10px;
+        }
+        .tab.active {
+            background-color: #ccc;
+            font-weight: bold;
+        }
+        .hidden {
+            display: none;
+        }
+        #toggleCities {
+            margin-top: 10px;
+        }
+    </style>
 </head>
 <body>
-    <h1>Welcome to GlobeTrotter</h1>
 
-    <!-- Input for searching countries -->
-    <input type="text" id="countrySearch" list="countryList" placeholder="Search country">
-    <datalist id="countryList">
-    </datalist>
+<div>
+    <div id="countriesTab" class="tab active" onclick="showCountries()">Countries</div>
+    <div id="citiesTab" class="tab" onclick="showCities()">Cities</div>
+</div>
 
+<div id="map"></div>
+
+<div id="countrySearchSection">
+    <input list='countryList' type="text" id="countrySearch" placeholder="Search Countries">
     <button onclick="addCountry('visited')">Add to Visited</button>
     <button onclick="addCountry('want_to_visit')">Add to Want to Visit</button>
-    <div id="map" style="height: 500px;"></div>
+    <datalist id="countryList"></datalist>
+</div>
 
-    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-    <script src="/static/js/map.js"></script>
+<div id="citySearchSection" class="hidden">
+    <input list='cityList' type="text" id="citySearch" placeholder="Search Cities">
+    <button onclick="addCity('visited')">Add to Visited</button>
+    <button onclick="addCity('want_to_visit')">Add to Want to Visit</button>
+    <datalist id="cityList"></datalist>
+    <br>
+</div>
+
+ <!-- Toggle for Cities Visibility -->
+
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="static/js/map.js"></script>
 </body>
 </html>
