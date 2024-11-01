@@ -17,16 +17,29 @@ var validCities = [];
 var cityCoordinates = {};
 var cities_geojson;
 
+
+// Pin Icons
+var visitedIcon = new L.Icon({
+    iconUrl: '/static/js/visited-pin.svg',
+    iconSize: [30, 30],
+    iconAnchor: [15, 30],
+    popupAnchor: [0, -30],
+});
+
+var wantedIcon = new L.Icon({
+    iconUrl: '/static/js/wanted-pin.svg',
+    iconSize: [30, 30],
+    iconAnchor: [15, 30],
+    popupAnchor: [0, -30],
+});
+
+
 // --- Load Data ---
 
 fetch('/static/js/cities.geojson')
     .then(response => response.json())
     .then(data => {
         cities_geojson = data;
-        // data.features.forEach(feature => {
-        //     const cityName = feature.properties.NAME;
-        //     cityCoordinates[cityName] = getCityCoordinates(cityName);
-        // });
         validCities = data.features.map(feature => feature.properties.NAME);
         populateCityAutocomplete(validCities);
     });
@@ -121,19 +134,20 @@ function addCountryToList(countryName, status) {
     wantToVisitCountries = wantToVisitCountries.filter(c => c !== countryName);
 
     if (status === 'visited') {
+        zoomToCountry(countryName);
         visitedCountries.push(countryName);
-        zoomToCountry(countryName);
+        updateVisitedCounts();
     } else if (status === 'want_to_visit') {
-        wantToVisitCountries.push(countryName);
         zoomToCountry(countryName);
+        wantToVisitCountries.push(countryName);
     }
 }
 
-// Function to zoom into the country on the map
+// Function to zoom into the country on the map with animation
 function zoomToCountry(countryName) {
     countryLayer.eachLayer(function (layer) {
         if (layer.feature.properties.ADMIN === countryName) {
-            map.fitBounds(layer.getBounds(), { maxZoom: 9 });
+            map.flyTo(layer.getBounds().getCenter(), 3, { duration: 1 }); // Animate to center of country over 1 second
         }
     });
 }
@@ -147,7 +161,7 @@ function addCity(status) {
 
     // Validate against validCities
     if (!validCities.includes(cityName)) {
-        return alert('City is not valid or does not exist.');
+        return alert(cityName + "was not found.");
     }
     addCityToList(cityName, status);
     updateMap();
@@ -160,45 +174,54 @@ function addCityToList(cityName, status) {
 
     if (status === 'visited') {
         visitedCities.push(cityName);
-        addCityMarker(cityName, '#ff9500');
         zoomToCity(cityName); // Zoom into the city
+        addCityMarker(cityName, visitedIcon);
+        updateVisitedCounts();
     } else if (status === 'want_to_visit') {
         wantToVisitCities.push(cityName);
-        addCityMarker(cityName, '#5A00FF');
         zoomToCity(cityName); // Zoom into the city
+        addCityMarker(cityName, wantedIcon);
     }
 }
 
-// Function to zoom into the city on the map
+// Function to zoom into the city on the map with animation
 function zoomToCity(cityName) {
     const coordinates = getCityCoordinates(cityName);
     if (coordinates) {
-        map.setView(coordinates, 9);
+        map.flyTo(coordinates, 5, { duration: 1 });
     }
 }
 
+// Function to update the display of visited counts
+function updateVisitedCounts() {
+    // Update country count
+    const countryCount = visitedCountries.length;
+    document.getElementById('countryCount').textContent = countryCount;
+    document.getElementById('countriesVisited').style.display = countryCount > 0 ? 'block' : 'none';
+
+    // Update city count
+    const cityCount = visitedCities.length;
+    document.getElementById('cityCount').textContent = cityCount;
+    document.getElementById('citiesVisited').style.display = cityCount > 0 ? 'block' : 'none';
+}
+
 // Function to add a city marker on the map
-function addCityMarker(cityName, color) {
+function addCityMarker(cityName, icon) {
     var coordinates = getCityCoordinates(cityName);
 
     if (!coordinates) {
         console.error(`City "${cityName}" not found or invalid coordinates.`);
         return;
     }
-
-    var marker = L.circleMarker(coordinates, {
-        radius: 6,
-        color: color,
-        fillColor: color,
-        fillOpacity: 0.9
-    }).bindPopup(cityName).addTo(cityMarkers);
-
-    // Add click event to marker for city removal
+    
+    var marker = L.marker(coordinates, { icon: icon }).addTo(cityMarkers);
+    cityMarkers[cityName] = marker;
+    // Remove city click event
     marker.on('click', function () {
         var popupContent = `
             <div style="text-align: center;">
                 <strong>${cityName}</strong><br>
-                <button onclick="removeCity('${cityName}', '${color}'); closePopup()"
+                <button onclick="removeCity('${cityName}'); closePopup();"
                     style="background-color: red; color: white; border: none; padding: 5px 10px; margin-top: 5px; cursor: pointer;">
                     Remove City
                 </button>
@@ -208,28 +231,28 @@ function addCityMarker(cityName, color) {
     });
 }
 
-// Function to remove a city from the visited or want-to-visit list
-function removeCity(cityName, color) {
-    if (visitedCities.includes(cityName)) {
-        visitedCities = visitedCities.filter(c => c !== cityName);
-    } else if (wantToVisitCities.includes(cityName)) {
-        wantToVisitCities = wantToVisitCities.filter(c => c !== cityName);
-    }
-    cityMarkers.clearLayers();
-    visitedCities.forEach(city => addCityMarker(city, '#ff9500'));
-    wantToVisitCities.forEach(city => addCityMarker(city, '#5A00FF'));
-    updateMap();
-}
 
+// Remove city from lists and clear markers
+function removeCity(cityName) {
+    visitedCities = visitedCities.filter(c => c !== cityName);
+    wantToVisitCities = wantToVisitCities.filter(c => c !== cityName);
+
+    var marker = cityMarkers[cityName];
+    if (marker) {
+        cityMarkers.removeLayer(marker);
+        delete cityMarkers[cityName];
+    }
+    updateMap(); 
+}
 
 
 
 // Function to get or calculate centroid coordinates for a city
 function getCityCoordinates(cityName) {
-    if (cityCoordinates[cityName])  {
+    if (cityCoordinates[cityName]) {
         return cityCoordinates[cityName];
     }
-    
+
     const cityFeature = cities_geojson.features.find(feature => feature.properties.NAME === cityName);
     if (!cityFeature) {
         console.error(`City not found in GeoJSON: ${cityName}`);
@@ -244,7 +267,7 @@ function getCityCoordinates(cityName) {
             acc[0] += coord[0];
             acc[1] += coord[1];
             return acc;
-        }, [0, 0]).map(total => total / coordinates.length); 
+        }, [0, 0]).map(total => total / coordinates.length);
 
         cityCoordinates[cityName] = [centroid[1], centroid[0]];
         return cityCoordinates[cityName];
@@ -282,6 +305,7 @@ function updateMap() {
             cityMarkers.clearLayers();
             visitedCities.forEach(city => addCityMarker(city, '#ff9500'));
             wantToVisitCities.forEach(city => addCityMarker(city, '#5A00FF'));
+            updateVisitedCounts(); 
         })
         .catch(err => console.error('Error:', err));
 }

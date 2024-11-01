@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Travel Tracker</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
     <style>
         /* Add your styles here */
         #map { height: 650px; }
@@ -56,10 +57,16 @@
     <br>
 </div>
 
- <!-- Toggle for Cities Visibility -->
+  <!-- Display Visited Counts -->
+<div id="visitedCounts" style="margin-top: 10px;">
+    <div id="countriesVisited" style="display: none;">Countries visited: <span id="countryCount">0</span></div>
+    <div id="citiesVisited" style="display: none;">Cities visited: <span id="cityCount">0</span></div>
+</div>
 
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
+
 <script src="static/js/map.js"></script>
 </body>
 </html>
