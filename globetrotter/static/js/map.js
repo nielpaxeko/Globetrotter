@@ -1,10 +1,22 @@
 // --- Map Setup ---
 var map = L.map('map').setView([20, 0], 2);
-L.tileLayer('https://{s}.basemaps.cartocdn.com/light/{z}/{x}/{y}{r}.png', {
+L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
     subdomains: 'abcd',
     maxZoom: 19
 }).addTo(map);
+
+const railwayLayer = L.tileLayer('https://{s}.tiles.openrailwaymap.org/standard/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors | Map style: &copy; <a href="https://www.OpenRailwayMap.org">OpenRailwayMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
+});
+document.getElementById('toggleRailwayLayer').addEventListener('change', function (event) {
+    if (event.target.checked) {
+        map.addLayer(railwayLayer);
+    } else {
+        map.removeLayer(railwayLayer);
+    }
+});
 
 // --- Global Variables ---
 var visitedCountries = [];
@@ -25,7 +37,6 @@ var visitedIcon = new L.Icon({
     iconAnchor: [15, 30],
     popupAnchor: [0, -30],
 });
-
 var wantedIcon = new L.Icon({
     iconUrl: '/static/js/wanted-pin.svg',
     iconSize: [30, 30],
@@ -34,8 +45,8 @@ var wantedIcon = new L.Icon({
 });
 
 
-// --- Load Data ---
 
+// --- Load Data ---
 fetch('/static/js/cities.geojson')
     .then(response => response.json())
     .then(data => {
@@ -49,7 +60,6 @@ fetch('/static/js/countries.geojson')
     .then(data => {
         countryLayer = L.geoJSON(data, {
             style: {
-                color: "#3388ff",
                 weight: 1,
                 fillOpacity: 0.2
             },
@@ -57,26 +67,30 @@ fetch('/static/js/countries.geojson')
                 const countryName = feature.properties.ADMIN;
 
                 // Click event for each country
-                layer.on('click', function () {
-                    handleCountryClick(countryName);
+                layer.on('click', function (event) {
+                    handleCountryClick(countryName, event);
                 });
             }
         }).addTo(map);
-
         // Autocomplete
         var countryList = data.features.map(feature => feature.properties.ADMIN);
         populateAutocomplete(countryList);
     });
 
 // --- Country Logic ---
-function handleCountryClick(countryName) {
+function handleCountryClick(countryName, event) {
+    // Get the lat and lon of the click event
+    const clickLocation = event.latlng;
+
     if (visitedCountries.includes(countryName)) {
         if (confirm(`Remove ${countryName} from the visited list?`)) {
             visitedCountries = visitedCountries.filter(c => c !== countryName);
+            updateCountry(countryName);
         }
     } else if (wantToVisitCountries.includes(countryName)) {
         if (confirm(`Remove ${countryName} from the want to visit list?`)) {
             wantToVisitCountries = wantToVisitCountries.filter(c => c !== countryName);
+            updateCountry(countryName);
         }
     } else {
         var popupContent = `
@@ -92,18 +106,31 @@ function handleCountryClick(countryName) {
                 </button>
             </div>
     `;
-        countryLayer.eachLayer(function (layer) {
-            if (layer.feature.properties.ADMIN === countryName) {
-                layer.bindPopup(popupContent).openPopup();
-            }
-        });
+        L.popup()
+            .setLatLng(clickLocation)
+            .setContent(popupContent)
+            .openOn(map);
     }
     updateMap();
 }
 
+
 function closePopup() {
     map.closePopup();
     updateMap();
+}
+
+// Function to update the style of a country based on its visit status
+function updateCountry(countryName) {
+    countryLayer.eachLayer(function (layer) {
+        var currentCountryName = layer.feature.properties.ADMIN;
+        if (currentCountryName === countryName) {
+            layer.setStyle({
+                color: '#3388ff',
+                fillOpacity: 0.2
+            });
+        }
+    });
 }
 
 // Populate autocomplete list
@@ -122,8 +149,9 @@ function populateAutocomplete(countries) {
 // Add country to visited or want-to-visit list
 function addCountry(status) {
     var countryName = document.getElementById('countrySearch').value;
-    if (!countryName) return alert('Please enter a country name');
 
+    if (!countryName) return alert('Please enter a country name');
+    zoomToCountry(countryName);
     addCountryToList(countryName, status);
     updateMap();
 }
@@ -134,23 +162,22 @@ function addCountryToList(countryName, status) {
     wantToVisitCountries = wantToVisitCountries.filter(c => c !== countryName);
 
     if (status === 'visited') {
-        zoomToCountry(countryName);
         visitedCountries.push(countryName);
         updateVisitedCounts();
     } else if (status === 'want_to_visit') {
-        zoomToCountry(countryName);
         wantToVisitCountries.push(countryName);
     }
 }
 
-// Function to zoom into the country on the map with animation
+// Function to zoom into a country 
 function zoomToCountry(countryName) {
     countryLayer.eachLayer(function (layer) {
         if (layer.feature.properties.ADMIN === countryName) {
-            map.flyTo(layer.getBounds().getCenter(), 3, { duration: 1 }); // Animate to center of country over 1 second
+            map.flyToBounds(layer.getBounds(), 2, { duration: 1 });
         }
     });
 }
+
 
 // --- City Logic ---
 
@@ -174,12 +201,12 @@ function addCityToList(cityName, status) {
 
     if (status === 'visited') {
         visitedCities.push(cityName);
-        zoomToCity(cityName); // Zoom into the city
+        zoomToCity(cityName);
         addCityMarker(cityName, visitedIcon);
         updateVisitedCounts();
     } else if (status === 'want_to_visit') {
         wantToVisitCities.push(cityName);
-        zoomToCity(cityName); // Zoom into the city
+        zoomToCity(cityName);
         addCityMarker(cityName, wantedIcon);
     }
 }
@@ -188,18 +215,16 @@ function addCityToList(cityName, status) {
 function zoomToCity(cityName) {
     const coordinates = getCityCoordinates(cityName);
     if (coordinates) {
-        map.flyTo(coordinates, 5, { duration: 1 });
+        map.flyTo(coordinates, 3, { duration: .5 });
     }
 }
 
 // Function to update the display of visited counts
 function updateVisitedCounts() {
-    // Update country count
     const countryCount = visitedCountries.length;
     document.getElementById('countryCount').textContent = countryCount;
     document.getElementById('countriesVisited').style.display = countryCount > 0 ? 'block' : 'none';
 
-    // Update city count
     const cityCount = visitedCities.length;
     document.getElementById('cityCount').textContent = cityCount;
     document.getElementById('citiesVisited').style.display = cityCount > 0 ? 'block' : 'none';
@@ -213,9 +238,10 @@ function addCityMarker(cityName, icon) {
         console.error(`City "${cityName}" not found or invalid coordinates.`);
         return;
     }
-    
+
     var marker = L.marker(coordinates, { icon: icon }).addTo(cityMarkers);
     cityMarkers[cityName] = marker;
+
     // Remove city click event
     marker.on('click', function () {
         var popupContent = `
@@ -232,7 +258,7 @@ function addCityMarker(cityName, icon) {
 }
 
 
-// Remove city from lists and clear markers
+// Remove city from lists
 function removeCity(cityName) {
     visitedCities = visitedCities.filter(c => c !== cityName);
     wantToVisitCities = wantToVisitCities.filter(c => c !== cityName);
@@ -242,12 +268,12 @@ function removeCity(cityName) {
         cityMarkers.removeLayer(marker);
         delete cityMarkers[cityName];
     }
-    updateMap(); 
+    updateMap();
 }
 
 
 
-// Function to get or calculate centroid coordinates for a city
+// Calculate centroid coordinates for a city
 function getCityCoordinates(cityName) {
     if (cityCoordinates[cityName]) {
         return cityCoordinates[cityName];
@@ -296,16 +322,14 @@ function updateMap() {
                     layer.setStyle({ color: '#ff9500', fillOpacity: 0.5 });
                 } else if (wantToVisitCountries.includes(countryName)) {
                     layer.setStyle({ color: '#5A00FF', fillOpacity: 0.5 });
-                } else {
-                    layer.setStyle({ color: '#3388ff', fillOpacity: 0.2 });
                 }
             });
 
             // Clear and re-add city markers
             cityMarkers.clearLayers();
-            visitedCities.forEach(city => addCityMarker(city, '#ff9500'));
-            wantToVisitCities.forEach(city => addCityMarker(city, '#5A00FF'));
-            updateVisitedCounts(); 
+            visitedCities.forEach(city => addCityMarker(city, visitedIcon));
+            wantToVisitCities.forEach(city => addCityMarker(city, wantedIcon));
+            updateVisitedCounts();
         })
         .catch(err => console.error('Error:', err));
 }
@@ -342,3 +366,27 @@ function showCities() {
     document.getElementById('citySearchSection').classList.remove('hidden');
     document.getElementById('countrySearchSection').classList.add('hidden');
 }
+
+// --- Map Download ---
+document.getElementById('downloadMap').addEventListener('click', function () {
+    // Adjust map center before capturing
+    map.invalidateSize();
+    map.setView([20, 0], 2); // Adjust based on your preferred center and zoom
+    updateMap();
+    // Allow the map to render fully before capture
+    setTimeout(() => {
+        html2canvas(document.querySelector('#map'), {
+            scrollX: 0,
+            scrollY: 0,
+            useCORS: true, // Enable cross-origin images if needed
+            width: document.querySelector('#map').offsetWidth,
+            height: document.querySelector('#map').offsetHeight,
+        }).then(canvas => {
+            const link = document.createElement('a');
+            link.href = canvas.toDataURL('image/png');
+            link.download = 'my-travel-map.png';
+            link.click();
+        });
+    }, 500); // Wait for 500ms to ensure rendering completes
+});
+

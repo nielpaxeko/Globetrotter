@@ -3,35 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Travel Tracker</title>
+    <title>Globetrotter</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-
-    <style>
-        /* Add your styles here */
-        #map { height: 650px; }
-        .tab {
-            cursor: pointer;
-            padding: 10px;
-            display: inline-block;
-            background-color: #f1f1f1;
-            border: 1px solid #ccc;
-            margin-right: 5px; /* Added margin for spacing */
-        }
-        #citySearchSection,
-        #countrySearchSection {
-            margin-top: 10px;
-        }
-        .tab.active {
-            background-color: #ccc;
-            font-weight: bold;
-        }
-        .hidden {
-            display: none;
-        }
-        #toggleCities {
-            margin-top: 10px;
-        }
-    </style>
+    <link rel="stylesheet" href="/static/css/styles.css">
 </head>
 <body>
 
@@ -44,29 +18,37 @@
 
 <div id="countrySearchSection">
     <input list='countryList' type="text" id="countrySearch" placeholder="Search Countries">
-    <button onclick="addCountry('visited')">Add to Visited</button>
-    <button onclick="addCountry('want_to_visit')">Add to Want to Visit</button>
+    <button class="visited-btn" onclick="addCountry('visited')">Add to Visited</button>
+    <button class="wanted-btn" onclick="addCountry('want_to_visit')">Add to Want to Visit</button>
     <datalist id="countryList"></datalist>
 </div>
 
 <div id="citySearchSection" class="hidden">
     <input list='cityList' type="text" id="citySearch" placeholder="Search Cities">
-    <button onclick="addCity('visited')">Add to Visited</button>
-    <button onclick="addCity('want_to_visit')">Add to Want to Visit</button>
+    <button class="visited-btn" onclick="addCity('visited')">Add to Visited</button>
+    <button class="wanted-btn" onclick="addCity('want_to_visit')">Add to Want to Visit</button>
     <datalist id="cityList"></datalist>
     <br>
 </div>
-
-  <!-- Display Visited Counts -->
+<!-- Display Visited Counts -->
 <div id="visitedCounts" style="margin-top: 10px;">
     <div id="countriesVisited" style="display: none;">Countries visited: <span id="countryCount">0</span></div>
     <div id="citiesVisited" style="display: none;">Cities visited: <span id="cityCount">0</span></div>
 </div>
 
+<!-- Railway Layer Toggle -->
+<div class="controls">
+    <label>
+        <input type="checkbox" id="toggleRailwayLayer" />
+        Show Railway Routes
+    </label>
+    <button id="downloadMap" style="margin-top: 10px;">Download Map</button>
+
+</div>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="static/js/map.js"></script>
 </body>
 </html>

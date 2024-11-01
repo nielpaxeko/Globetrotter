@@ -1,20 +1,91 @@
+
 body {
     font-family: Arial, sans-serif;
-    text-align: center;
+    padding: 0px 20px;
 }
 
 #map {
-    margin: 20px auto;
-    width: 80%;
-    height: 500px;
+    height: 650px;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+
+.tab {
+    cursor: pointer;
+    padding: 10px;
+    display: inline-block;
+    background-color: #f1f1f1;
+    border: 1px solid #ccc;
+    margin-right: 5px;
+    border-radius: 20px 20px 0px 0px;
+    width: 100px;
+    text-align: center;
+    font-weight: bold;
+}
+
+#citySearchSection,
+#countrySearchSection {
+    margin-top: 10px;
+    margin-right: 5px;
+}
+
+#countrySearch,
+#citySearch {
+    border-radius: 20px;
+    width: 300px;
+    border: 1px solid black;
+}
+
+.controls {
+    margin-top: 5px;
+}
+
+.tab.active {
+    background-color: #FF9500;
+    color: white;
+}
+
+.hidden {
+    display: none;
 }
 
 input {
     padding: 10px;
-    margin: 10px;
 }
 
 button {
     padding: 10px;
-    margin: 10px;
+    margin-right: 5px;
+    margin-top: 0px !important;
+    font-weight: bold;
+    border-radius: 40px;
 }
+/* Travel Buttons */
+.visited-btn {
+    background-color: #FF9500;
+    border: 1px solid #FF9500;
+    color: white;
+}
+
+.visited-btn:hover {
+    background-color: white;
+    color: #FF9500;
+}
+
+.wanted-btn {
+    background-color: #5A00FF;
+    border: 1px solid #5A00FF;
+    color: white;
+}
+
+.wanted-btn:hover {
+    background-color: white;
+    color: #5A00FF;
+}
+
+#toggleRailwayLayer {
+
+}
+
