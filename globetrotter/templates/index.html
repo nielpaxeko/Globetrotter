@@ -6,6 +6,7 @@
     <title>Globetrotter</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <link rel="stylesheet" href="/static/css/styles.css">
+    <script src="https://unpkg.com/leaflet-image/leaflet-image.js"></script>
 </head>
 <body>
 
@@ -14,7 +15,7 @@
     <div id="citiesTab" class="tab" onclick="showCities()">Cities</div>
 </div>
 
-<div id="map"></div>
+<div id="map" style="height: 600px;"></div> <!-- Ensure the map has a height -->
 
 <div id="countrySearchSection">
     <input list='countryList' type="text" id="countrySearch" placeholder="Search Countries">
@@ -30,25 +31,26 @@
     <datalist id="cityList"></datalist>
     <br>
 </div>
-<!-- Display Visited Counts -->
+
 <div id="visitedCounts" style="margin-top: 10px;">
     <div id="countriesVisited" style="display: none;">Countries visited: <span id="countryCount">0</span></div>
     <div id="citiesVisited" style="display: none;">Cities visited: <span id="cityCount">0</span></div>
 </div>
 
-<!-- Railway Layer Toggle -->
 <div class="controls">
-    <label>
+    <label id="showRoutesLabel">
         <input type="checkbox" id="toggleRailwayLayer" />
         Show Railway Routes
     </label>
-    <button id="downloadMap" style="margin-top: 10px;">Download Map</button>
-
+    <button id="locateUserButton" class="otherBtn" style="margin-top: 10px;">Locate Me</button>
+    <button id="downloadMap" class="otherBtn" style="margin-top: 10px;">Download Map</button>
 </div>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="static/js/map.js"></script>
+
+
 </body>
 </html>

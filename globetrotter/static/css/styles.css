@@ -9,6 +9,8 @@ body {
     width: 100%;
     position: relative;
     overflow: hidden;
+    border-radius: 0px 20px 20px 20px;
+    
 }
 
 
@@ -38,12 +40,13 @@ body {
     border: 1px solid black;
 }
 
+
 .controls {
     margin-top: 5px;
 }
 
 .tab.active {
-    background-color: #FF9500;
+    background-color: #921A40;
     color: white;
 }
 
@@ -61,6 +64,14 @@ button {
     margin-top: 0px !important;
     font-weight: bold;
     border-radius: 40px;
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+
+button:active {
+    transform: translateY(2px); 
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 /* Travel Buttons */
 .visited-btn {
@@ -85,7 +96,17 @@ button {
     color: #5A00FF;
 }
 
-#toggleRailwayLayer {
-
+.otherBtn {
+    background-color: #921A40;
+    border: 1px solid #921A40;
+    color: white;
 }
 
+.otherBtn:hover {
+    background-color: white;
+    color: #921A40;
+}
+
+#showRoutesLabel {
+    margin-right: 5px;
+}

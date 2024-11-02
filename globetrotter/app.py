@@ -56,7 +56,6 @@ def add_city():
     # Validate cities
     visited_cities.clear()
     want_to_visit_cities.clear()
-
     for city in visited:
         if city in valid_cities:
             visited_cities.append(city)
@@ -76,6 +75,7 @@ def get_countries():
 @app.route('/cities', methods=['GET'])
 def get_cities():
     return jsonify(valid_cities)
+
 
 if __name__ == '__main__':
     app.run(debug=True)

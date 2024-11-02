@@ -30,7 +30,7 @@ var cityCoordinates = {};
 var cities_geojson;
 
 
-// Pin Icons
+// Map Pin Icons
 var visitedIcon = new L.Icon({
     iconUrl: '/static/js/visited-pin.svg',
     iconSize: [30, 30],
@@ -39,6 +39,12 @@ var visitedIcon = new L.Icon({
 });
 var wantedIcon = new L.Icon({
     iconUrl: '/static/js/wanted-pin.svg',
+    iconSize: [30, 30],
+    iconAnchor: [15, 30],
+    popupAnchor: [0, -30],
+});
+var currentIcon = new L.Icon({
+    iconUrl: '/static/js/current-pin.svg',
     iconSize: [30, 30],
     iconAnchor: [15, 30],
     popupAnchor: [0, -30],
@@ -215,7 +221,7 @@ function addCityToList(cityName, status) {
 function zoomToCity(cityName) {
     const coordinates = getCityCoordinates(cityName);
     if (coordinates) {
-        map.flyTo(coordinates, 3, { duration: .5 });
+        map.flyTo(coordinates, 5, { duration: .5 });
     }
 }
 
@@ -347,6 +353,64 @@ function populateCityAutocomplete(cities) {
     });
 }
 
+// --- User Geolocation ---
+function locateUser() {
+    const permission = confirm("Would you like to share your location?");
+    if (permission) {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                position => {
+                    const { latitude, longitude } = position.coords;
+                    const userLocation = [latitude, longitude];
+                    map.setView(userLocation, 5);
+
+                    // Add a marker for user's location
+                    const userMarker = L.marker(userLocation, {
+                        title: "Your Location",
+                        icon: currentIcon
+                    }).addTo(map).bindPopup("You are here!");
+                    const countryName = getCountryFromLayer(userLocation);
+                    if (countryName) {
+                        console.log(`User's current country: ${countryName}`);
+                        if (!visitedCountries.includes(countryName)) {
+                            visitedCountries.push(countryName);
+                            console.log(`Added country: ${countryName} to visited list.`);
+                            // Refresh the map
+                            updateMap();
+                            updateVisitedCounts();
+                        } else {
+                            console.log(`Country ${countryName} is already in visited list.`);
+                        }
+                    } else {
+                        console.error("No country found for the user's location.");
+                    }
+                },
+                error => console.error("Geolocation error:", error)
+            );
+        } else {
+            alert("Geolocation is not supported by this browser.");
+        }
+    }
+
+}
+
+// Function to find the country in `countryLayer` based on given coordinates
+function getCountryFromLayer(coords) {
+    if (!countryLayer) {
+        console.error("Country layer is not initialized yet.");
+        return null;
+    }
+    let countryName = null;
+    countryLayer.eachLayer(layer => {
+        if (layer.getBounds().contains(coords)) {
+            countryName = layer.feature.properties.ADMIN;
+        }
+    });
+    return countryName;
+}
+
+document.getElementById('locateUserButton').addEventListener('click', locateUser);
+
 // --- Tab Functions ---
 function showTab(tab) {
     document.getElementById('countries-tab').style.display = tab === 'countries' ? 'block' : 'none';
@@ -367,26 +431,6 @@ function showCities() {
     document.getElementById('countrySearchSection').classList.add('hidden');
 }
 
-// --- Map Download ---
-document.getElementById('downloadMap').addEventListener('click', function () {
-    // Adjust map center before capturing
-    map.invalidateSize();
-    map.setView([20, 0], 2); // Adjust based on your preferred center and zoom
-    updateMap();
-    // Allow the map to render fully before capture
-    setTimeout(() => {
-        html2canvas(document.querySelector('#map'), {
-            scrollX: 0,
-            scrollY: 0,
-            useCORS: true, // Enable cross-origin images if needed
-            width: document.querySelector('#map').offsetWidth,
-            height: document.querySelector('#map').offsetHeight,
-        }).then(canvas => {
-            const link = document.createElement('a');
-            link.href = canvas.toDataURL('image/png');
-            link.download = 'my-travel-map.png';
-            link.click();
-        });
-    }, 500); // Wait for 500ms to ensure rendering completes
-});
+
+
 
