@@ -1,56 +1,49 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Globetrotter</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    <link rel="stylesheet" href="/static/css/styles.css">
-    <script src="https://unpkg.com/leaflet-image/leaflet-image.js"></script>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Globetrotter</title>
+	<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+	<link rel="stylesheet" href="/static/css/styles.css" />
+	<link rel="icon" type="image/png" href="/static/images/globetrotter.png" />
 </head>
 <body>
-
-<div>
-    <div id="countriesTab" class="tab active" onclick="showCountries()">Countries</div>
-    <div id="citiesTab" class="tab" onclick="showCities()">Cities</div>
-</div>
-
-<div id="map" style="height: 600px;"></div> <!-- Ensure the map has a height -->
-
-<div id="countrySearchSection">
-    <input list='countryList' type="text" id="countrySearch" placeholder="Search Countries">
-    <button class="visited-btn" onclick="addCountry('visited')">Add to Visited</button>
-    <button class="wanted-btn" onclick="addCountry('want_to_visit')">Add to Want to Visit</button>
-    <datalist id="countryList"></datalist>
-</div>
-
-<div id="citySearchSection" class="hidden">
-    <input list='cityList' type="text" id="citySearch" placeholder="Search Cities">
-    <button class="visited-btn" onclick="addCity('visited')">Add to Visited</button>
-    <button class="wanted-btn" onclick="addCity('want_to_visit')">Add to Want to Visit</button>
-    <datalist id="cityList"></datalist>
-    <br>
-</div>
-
-<div id="visitedCounts" style="margin-top: 10px;">
-    <div id="countriesVisited" style="display: none;">Countries visited: <span id="countryCount">0</span></div>
-    <div id="citiesVisited" style="display: none;">Cities visited: <span id="cityCount">0</span></div>
-</div>
-
-<div class="controls">
-    <label id="showRoutesLabel">
-        <input type="checkbox" id="toggleRailwayLayer" />
-        Show Railway Routes
-    </label>
-    <button id="locateUserButton" class="otherBtn" style="margin-top: 10px;">Locate Me</button>
-    <button id="downloadMap" class="otherBtn" style="margin-top: 10px;">Download Map</button>
-</div>
-
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-<script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="static/js/map.js"></script>
-
-
+	<div>
+		<h1 id="globe-welcome">Welcome to Globetrotter</h1>
+	</div>
+	<div>
+		<div id="countriesTab" class="tab active" onclick="showCountries()">Countries</div>
+		<div id="citiesTab" class="tab" onclick="showCities()">Cities</div>
+	</div>
+	<div id="map" style="height: 600px"></div>
+	<div id="trotter-controls">
+		<div id="countrySearchSection">
+			<input list="countryList" type="text" id="countrySearch" placeholder="Search for a country" />
+			<button class="visited-btn" onclick="addCountry('visited')" style="margin-top: 10px">Add to Visited</button>
+			<button class="wanted-btn" onclick="addCountry('want_to_visit')" style="margin-top: 10px">Add to Want to Visit</button>
+			<datalist id="countryList"></datalist>
+			<button id="locateUserButton" class="otherBtn" style="margin-top: 10px">Locate Me</button>
+		</div>
+		<div id="citySearchSection" class="hidden">
+			<input list="cityList" type="text" id="citySearch" placeholder="Search for a city" />
+			<button class="visited-btn" onclick="addCity('visited')" style="margin-top: 10px">Add to Visited</button>
+			<button class="wanted-btn" onclick="addCity('want_to_visit')" style="margin-top: 10px">Add to Want to Visit</button>
+			<datalist id="cityList"></datalist>
+			<button id="locateUserButton" class="otherBtn" style="margin-top: 10px">Locate Me</button>
+		</div>
+	</div>
+	<div class="controls">
+		<label id="showRoutesLabel">
+			<input type="checkbox" id="toggleRailwayLayer" style="margin-top: 10px" />Show Railway Routes
+		</label>
+	</div>
+	<div id="visitedCounts" style="margin-top: 10px">
+		<div id="countriesVisited" style="display: none">Countries visited: <span id="countryCount">0</span></div>
+		<div id="citiesVisited" style="display: none">Cities visited: <span id="cityCount">0</span></div>
+	</div>
+	<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+	<script src="https://rawgit.com/rowanwins/leaflet-easyPrint/gh-pages/dist/bundle.js"></script>
+	<script src="static/js/map.js"></script>
 </body>
 </html>

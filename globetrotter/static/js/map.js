@@ -3,13 +3,24 @@ var map = L.map('map').setView([20, 0], 2);
 L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
     subdomains: 'abcd',
-    maxZoom: 19
+    maxZoom: 15
 }).addTo(map);
 
+// Save Map
+const easyPrintControl = L.easyPrint({
+    title: 'Print Map',
+    sizeModes: ['A4Landscape', 'A4Portrait'],
+    filename: 'My-Map',
+    exportOnly: true,
+    hideControlContainer: true,
+}).addTo(map);
+
+// Railway Map Layer
 const railwayLayer = L.tileLayer('https://{s}.tiles.openrailwaymap.org/standard/{z}/{x}/{y}.png', {
     maxZoom: 19,
     attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors | Map style: &copy; <a href="https://www.OpenRailwayMap.org">OpenRailwayMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
 });
+
 document.getElementById('toggleRailwayLayer').addEventListener('change', function (event) {
     if (event.target.checked) {
         map.addLayer(railwayLayer);
@@ -29,28 +40,25 @@ var validCities = [];
 var cityCoordinates = {};
 var cities_geojson;
 
-
 // Map Pin Icons
 var visitedIcon = new L.Icon({
-    iconUrl: '/static/js/visited-pin.svg',
+    iconUrl: '/static/images/visited-pin.svg',
     iconSize: [30, 30],
     iconAnchor: [15, 30],
     popupAnchor: [0, -30],
 });
 var wantedIcon = new L.Icon({
-    iconUrl: '/static/js/wanted-pin.svg',
+    iconUrl: '/static/images/wanted-pin.svg',
     iconSize: [30, 30],
     iconAnchor: [15, 30],
     popupAnchor: [0, -30],
 });
 var currentIcon = new L.Icon({
-    iconUrl: '/static/js/current-pin.svg',
+    iconUrl: '/static/images/current-pin.svg',
     iconSize: [30, 30],
     iconAnchor: [15, 30],
     popupAnchor: [0, -30],
 });
-
-
 
 // --- Load Data ---
 fetch('/static/js/cities.geojson')
@@ -64,30 +72,29 @@ fetch('/static/js/cities.geojson')
 fetch('/static/js/countries.geojson')
     .then(response => response.json())
     .then(data => {
+        // Country data
         countryLayer = L.geoJSON(data, {
             style: {
                 weight: 1,
                 fillOpacity: 0.2
             },
+            // Click event for adding countries
             onEachFeature: function (feature, layer) {
                 const countryName = feature.properties.ADMIN;
-
-                // Click event for each country
                 layer.on('click', function (event) {
                     handleCountryClick(countryName, event);
                 });
             }
         }).addTo(map);
-        // Autocomplete
+        // Country autocomplete 
         var countryList = data.features.map(feature => feature.properties.ADMIN);
         populateAutocomplete(countryList);
     });
 
 // --- Country Logic ---
 function handleCountryClick(countryName, event) {
-    // Get the lat and lon of the click event
+    // Get the lat and lon of the click
     const clickLocation = event.latlng;
-
     if (visitedCountries.includes(countryName)) {
         if (confirm(`Remove ${countryName} from the visited list?`)) {
             visitedCountries = visitedCountries.filter(c => c !== countryName);
@@ -99,17 +106,20 @@ function handleCountryClick(countryName, event) {
             updateCountry(countryName);
         }
     } else {
+        // Check wether user wants to add to visited or wanted list
         var popupContent = `
          <div style="text-align: center;">
-                <strong>${countryName}</strong><br>
-                <button onclick="addCountryToList('${countryName}', 'visited'); closePopup()"
-                    style="background-color: #ff9500; color: white; border: none; padding: 5px 10px; margin-top: 5px; cursor: pointer;">
-                    Add to Visited
-                </button>
-                <button onclick="addCountryToList('${countryName}', 'want_to_visit'); closePopup()"
-                    style="background-color: #5A00FF; color: white; border: none; padding: 5px 10px; margin-top: 5px; margin-left: 5px; cursor: pointer;">
-                    Add to Want to Visit
-                </button>
+                <strong style="display: block; margin-bottom: 10px;">${countryName}</strong>
+                 <div style="display: flex; justify-content: center; gap: 5px;">
+                    <button onclick="addCountryToList('${countryName}', 'visited'); closePopup()"
+                        style="background-color: #ff9500; color: white; height: 40px; border: none; padding: 5px; margin-top: 5px; cursor: pointer;">
+                        Add to Visited
+                    </button>
+                    <button onclick="addCountryToList('${countryName}', 'want_to_visit'); closePopup()"
+                        style="background-color: #5A00FF; color: white; height: 40px; border: none; padding: 5px; margin-top: 5px; cursor: pointer;">
+                        Add to Want to Visit
+                    </button>
+                </div>
             </div>
     `;
         L.popup()
@@ -155,18 +165,19 @@ function populateAutocomplete(countries) {
 // Add country to visited or want-to-visit list
 function addCountry(status) {
     var countryName = document.getElementById('countrySearch').value;
-
-    if (!countryName) return alert('Please enter a country name');
-    zoomToCountry(countryName);
-    addCountryToList(countryName, status);
-    updateMap();
+    if (!countryName) {
+        return alert('Please enter a country name');
+    } else {
+        zoomToCountry(countryName);
+        addCountryToList(countryName, status);
+        updateMap();
+    }
 }
 
 // Add country to visited or want-to-visit list
 function addCountryToList(countryName, status) {
     visitedCountries = visitedCountries.filter(c => c !== countryName);
     wantToVisitCountries = wantToVisitCountries.filter(c => c !== countryName);
-
     if (status === 'visited') {
         visitedCountries.push(countryName);
         updateVisitedCounts();
@@ -190,21 +201,21 @@ function zoomToCountry(countryName) {
 // Add city to a specific list
 function addCity(status) {
     var cityName = document.getElementById('citySearch').value;
-    if (!cityName) return alert('Please enter a city name');
-
-    // Validate against validCities
-    if (!validCities.includes(cityName)) {
+    if (!cityName) {
+        return alert('Please enter a city name');
+    } else if (!validCities.includes(cityName)) {
         return alert(cityName + "was not found.");
+    } else {
+        addCityToList(cityName, status);
+        updateMap();
     }
-    addCityToList(cityName, status);
-    updateMap();
 }
 
 // Add city to either visited or want-to-visit list and display marker
 function addCityToList(cityName, status) {
     visitedCities = visitedCities.filter(c => c !== cityName);
     wantToVisitCities = wantToVisitCities.filter(c => c !== cityName);
-
+    // Add city
     if (status === 'visited') {
         visitedCities.push(cityName);
         zoomToCity(cityName);
@@ -238,16 +249,14 @@ function updateVisitedCounts() {
 
 // Function to add a city marker on the map
 function addCityMarker(cityName, icon) {
+    // Get city
     var coordinates = getCityCoordinates(cityName);
-
     if (!coordinates) {
         console.error(`City "${cityName}" not found or invalid coordinates.`);
         return;
     }
-
     var marker = L.marker(coordinates, { icon: icon }).addTo(cityMarkers);
     cityMarkers[cityName] = marker;
-
     // Remove city click event
     marker.on('click', function () {
         var popupContent = `
@@ -268,7 +277,6 @@ function addCityMarker(cityName, icon) {
 function removeCity(cityName) {
     visitedCities = visitedCities.filter(c => c !== cityName);
     wantToVisitCities = wantToVisitCities.filter(c => c !== cityName);
-
     var marker = cityMarkers[cityName];
     if (marker) {
         cityMarkers.removeLayer(marker);
@@ -294,7 +302,7 @@ function getCityCoordinates(cityName) {
     if (cityFeature.geometry.type === "Polygon") {
         const coordinates = cityFeature.geometry.coordinates[0];
 
-        // Calculate centroid as the average of all points
+        // Calculate centroid as the average of all boundaries
         const centroid = coordinates.reduce((acc, coord) => {
             acc[0] += coord[0];
             acc[1] += coord[1];
@@ -304,12 +312,11 @@ function getCityCoordinates(cityName) {
         cityCoordinates[cityName] = [centroid[1], centroid[0]];
         return cityCoordinates[cityName];
     }
-
     console.error("Unexpected geometry type:", cityFeature.geometry.type);
     return null;
 }
 
-// Update the map colors and markers
+// Update the map colors and markers etc
 function updateMap() {
     fetch('/add-country', {
         method: 'POST',
@@ -369,6 +376,7 @@ function locateUser() {
                         title: "Your Location",
                         icon: currentIcon
                     }).addTo(map).bindPopup("You are here!");
+                    // Get user's current country location from country layer
                     const countryName = getCountryFromLayer(userLocation);
                     if (countryName) {
                         console.log(`User's current country: ${countryName}`);
