@@ -61,7 +61,7 @@ var currentIcon = new L.Icon({
 });
 
 // --- Load Data ---
-fetch('/static/js/cities.geojson')
+fetch('/static/js/cities.geojson.gz')
     .then(response => response.json())
     .then(data => {
         cities_geojson = data;
@@ -69,7 +69,7 @@ fetch('/static/js/cities.geojson')
         populateCityAutocomplete(validCities);
     });
 
-fetch('/static/js/countries.geojson')
+fetch('/static/js/countries.geojson.gz')
     .then(response => response.json())
     .then(data => {
         // Country data

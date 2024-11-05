@@ -1,5 +1,7 @@
 import json
+import gzip
 from flask import Flask, render_template, jsonify, request
+
 
 app = Flask(__name__)
 
@@ -14,15 +16,16 @@ visited_cities = []
 want_to_visit_cities = []
 
 # Load country GeoJSON data
-with open('static/js/countries.geojson') as f:
-    geojson_data = json.load(f)
+with open('static/js/countries.geojson.gz', 'rb') as f:  # Open in binary mode for gzip
+    geojson_data = json.load(gzip.GzipFile(fileobj=f))
+
 
 # Valid countries
 valid_countries = [feature['properties']['ADMIN'] for feature in geojson_data['features']]
 
 # Load city GeoJSON data
-with open('static/js/cities.geojson') as f:  # Ensure this path is correct
-    cities_geojson = json.load(f)
+with open('static/js/cities.geojson.gz', 'rb') as f:  # Open in binary mode for gzip
+    cities_geojson = json.load(gzip.GzipFile(fileobj=f))
 
 # Valid cities
 valid_cities = [feature['properties']['NAME'] for feature in cities_geojson['features']]
