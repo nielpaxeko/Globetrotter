@@ -69,7 +69,8 @@ fetch('/static/js/cities.geojson.gz')
         populateCityAutocomplete(validCities);
     });
 
-fetch('/static/js/countries.geojson.gz')
+
+fetch('/static/js/countries.geojson')
     .then(response => response.json())
     .then(data => {
         // Country data
