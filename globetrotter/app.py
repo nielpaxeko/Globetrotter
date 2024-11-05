@@ -27,10 +27,6 @@ with open('static/js/cities.geojson') as f:  # Ensure this path is correct
 # Valid cities
 valid_cities = [feature['properties']['NAME'] for feature in cities_geojson['features']]
 
-@app.route('/')
-def index():
-    return render_template('index.html')
-
 @app.route('/add-country', methods=['POST'])
 def add_country():
     data = request.json
