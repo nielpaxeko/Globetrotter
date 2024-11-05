@@ -60,8 +60,9 @@ var currentIcon = new L.Icon({
     popupAnchor: [0, -30],
 });
 
+
 // --- Load Data ---
-fetch('/static/js/cities.geojson.gz')
+fetch('/static/js/cities.geojson.gz')  
     .then(response => response.json())
     .then(data => {
         cities_geojson = data;
@@ -205,7 +206,7 @@ function addCity(status) {
     if (!cityName) {
         return alert('Please enter a city name');
     } else if (!validCities.includes(cityName)) {
-        return alert(cityName + "was not found.");
+        return alert(cityName + " was not found.");
     } else {
         addCityToList(cityName, status);
         updateMap();
