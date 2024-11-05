@@ -81,5 +81,5 @@ def get_cities():
     return jsonify(valid_cities)
 
 
-# if __name__ == '__main__':
-#     app.run(debug=True)
+if __name__ == '__main__':
+    app.run(debug=True)
