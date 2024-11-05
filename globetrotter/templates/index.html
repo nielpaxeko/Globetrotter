@@ -7,6 +7,7 @@
 	<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 	<link rel="stylesheet" href="/static/css/styles.css" />
 	<link rel="icon" type="image/png" href="/static/images/globetrotter.png" />
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/pako/1.0.11/pako.min.js"></script>
 </head>
 <body>
 	<div>
@@ -23,14 +24,14 @@
 			<button class="visited-btn" onclick="addCountry('visited')" style="margin-top: 10px">Add to Visited</button>
 			<button class="wanted-btn" onclick="addCountry('want_to_visit')" style="margin-top: 10px">Add to Want to Visit</button>
 			<datalist id="countryList"></datalist>
-			<button id="locateUserButton" class="otherBtn" style="margin-top: 10px">Locate Me</button>
+			<button class="locateUserButton otherBtn" style="margin-top: 10px">Locate Me</button>
 		</div>
 		<div id="citySearchSection" class="hidden">
 			<input list="cityList" type="text" id="citySearch" placeholder="Search for a city" />
 			<button class="visited-btn" onclick="addCity('visited')" style="margin-top: 10px">Add to Visited</button>
 			<button class="wanted-btn" onclick="addCity('want_to_visit')" style="margin-top: 10px">Add to Want to Visit</button>
 			<datalist id="cityList"></datalist>
-			<button id="locateUserButton" class="otherBtn" style="margin-top: 10px">Locate Me</button>
+			<button class="locateUserButton otherBtn" style="margin-top: 10px">Locate Me</button>
 		</div>
 	</div>
 	<div class="controls">
