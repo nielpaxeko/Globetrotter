@@ -3,6 +3,10 @@ from flask import Flask, render_template, jsonify, request
 
 app = Flask(__name__)
 
+@app.route('/')
+def index():
+    return render_template('index.html')
+
 # Store the countries and cities status
 visited_countries = []
 want_to_visit_countries = []
