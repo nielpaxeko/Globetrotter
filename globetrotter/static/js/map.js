@@ -62,21 +62,13 @@ var currentIcon = new L.Icon({
 
 
 // --- Load Data ---
-console.log('Fetching cities.geojson.gz');
-fetch('/static/js/cities.geojson.gz')
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok: ' + response.statusText);
-        }
-        return response.json();
-    })
+fetch('/static/js/cities.geojson.gz')  
+    .then(response => response.json())
     .then(data => {
         cities_geojson = data;
         validCities = data.features.map(feature => feature.properties.NAME);
         populateCityAutocomplete(validCities);
-    })
-    .catch(error => console.error('Error loading or parsing geojson.gz:', error));
-
+    });
 
 
 fetch('/static/js/countries.geojson')

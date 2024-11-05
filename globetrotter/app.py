@@ -17,15 +17,13 @@ want_to_visit_cities = []
 # Load country GeoJSON data
 with open('static/js/countries.geojson') as f:
     geojson_data = json.load(f)
-
-# Valid countries
-valid_countries = [feature['properties']['ADMIN'] for feature in geojson_data['features']]
-
+    
 # Load city GeoJSON data
-with open('static/js/cities.geojson.gz', 'rb') as f:  # Open in binary mode for gzip
+with open('static/js/cities.geojson.gz', 'rb') as f:
     cities_geojson = json.load(gzip.GzipFile(fileobj=f))
-
-# Valid cities
+    
+# Valid countries and cities
+valid_countries = [feature['properties']['ADMIN'] for feature in geojson_data['features']]
 valid_cities = [feature['properties']['NAME'] for feature in cities_geojson['features']]
 
 @app.route('/add-country', methods=['POST'])
