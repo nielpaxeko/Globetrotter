@@ -62,14 +62,18 @@ var currentIcon = new L.Icon({
 
 
 // --- Load Data ---
-fetch('/api/cities-geojson')  
+fetch('/cities')
     .then(response => response.json())
     .then(data => {
-        cities_geojson = data;
-        validCities = data.features.map(feature => feature.properties.NAME);
+        validCities = data;
         populateCityAutocomplete(validCities);
-    })
-    .catch(err => console.error('Error loading cities GeoJSON:', err));
+    });
+
+fetch('/city-data')
+    .then(response => response.json())
+    .then(data => {
+        cityData = data;
+    });
 
 
 fetch('/static/js/countries.geojson')
@@ -96,7 +100,7 @@ fetch('/static/js/countries.geojson')
 
 // --- Country Logic ---
 function handleCountryClick(countryName, event) {
-    // Get the lat and lon of the click
+    // Get the click coords
     const clickLocation = event.latlng;
     if (visitedCountries.includes(countryName)) {
         if (confirm(`Remove ${countryName} from the visited list?`)) {
@@ -252,7 +256,6 @@ function updateVisitedCounts() {
 
 // Function to add a city marker on the map
 function addCityMarker(cityName, icon) {
-    // Get city
     var coordinates = getCityCoordinates(cityName);
     if (!coordinates) {
         console.error(`City "${cityName}" not found or invalid coordinates.`);
@@ -260,7 +263,6 @@ function addCityMarker(cityName, icon) {
     }
     var marker = L.marker(coordinates, { icon: icon }).addTo(cityMarkers);
     cityMarkers[cityName] = marker;
-    // Remove city click event
     marker.on('click', function () {
         var popupContent = `
             <div style="text-align: center;">
@@ -292,30 +294,10 @@ function removeCity(cityName) {
 
 // Calculate centroid coordinates for a city
 function getCityCoordinates(cityName) {
-    if (cityCoordinates[cityName]) {
-        return cityCoordinates[cityName];
+    const cityInfo = cityData.find(city => city.city === cityName);
+    if (cityInfo) {
+        return [cityInfo.lat, cityInfo.lng];
     }
-
-    const cityFeature = cities_geojson.features.find(feature => feature.properties.NAME === cityName);
-    if (!cityFeature) {
-        console.error(`City not found in GeoJSON: ${cityName}`);
-        return null;
-    }
-
-    if (cityFeature.geometry.type === "Polygon") {
-        const coordinates = cityFeature.geometry.coordinates[0];
-
-        // Calculate centroid as the average of all boundaries
-        const centroid = coordinates.reduce((acc, coord) => {
-            acc[0] += coord[0];
-            acc[1] += coord[1];
-            return acc;
-        }, [0, 0]).map(total => total / coordinates.length);
-
-        cityCoordinates[cityName] = [centroid[1], centroid[0]];
-        return cityCoordinates[cityName];
-    }
-    console.error("Unexpected geometry type:", cityFeature.geometry.type);
     return null;
 }
 
@@ -346,6 +328,18 @@ function updateMap() {
             visitedCities.forEach(city => addCityMarker(city, visitedIcon));
             wantToVisitCities.forEach(city => addCityMarker(city, wantedIcon));
             updateVisitedCounts();
+        })
+        .catch(err => console.error('Error:', err));
+
+    fetch('/add-city', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ visited: visitedCities, want_to_visit: wantToVisitCities })
+    })
+        .then(response => response.json())
+        .then(data => {
+            visitedCities = data.visited;
+            wantToVisitCities = data.want_to_visit;
         })
         .catch(err => console.error('Error:', err));
 }
