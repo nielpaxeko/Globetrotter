@@ -17,15 +17,20 @@ want_to_visit_cities = []
 # Load country GeoJSON data
 with open('static/js/countries.geojson') as f:
     geojson_data = json.load(f)
+valid_countries = [feature['properties']['ADMIN'] for feature in geojson_data['features']]
     
 # Load city GeoJSON data
-with gzip.open('static/js/cities.geojson.gz', 'rt', encoding='utf-8') as f:
-    cities_geojson = json.load(f)
+@app.route('/api/cities-geojson')
+def get_cities_geojson():
+    with gzip.open('static/js/cities.geojson.gz', 'rt', encoding='utf-8') as f:
+        cities_geojson = json.load(f)
+    # Update valid cities each time the endpoint is called
+    global valid_cities
+    valid_cities = [feature['properties']['NAME'] for feature in cities_geojson['features']]
+    return jsonify(cities_geojson)
     
-# Valid countries and cities
-valid_countries = [feature['properties']['ADMIN'] for feature in geojson_data['features']]
-valid_cities = [feature['properties']['NAME'] for feature in cities_geojson['features']]
 
+# valid_cities = [feature['properties']['NAME'] for feature in cities_geojson['features']]
 @app.route('/add-country', methods=['POST'])
 def add_country():
     data = request.json

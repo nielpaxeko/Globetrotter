@@ -62,13 +62,14 @@ var currentIcon = new L.Icon({
 
 
 // --- Load Data ---
-fetch('/static/js/cities.geojson.gz')  
+fetch('/api/cities-geojson')  
     .then(response => response.json())
     .then(data => {
         cities_geojson = data;
         validCities = data.features.map(feature => feature.properties.NAME);
         populateCityAutocomplete(validCities);
-    });
+    })
+    .catch(err => console.error('Error loading cities GeoJSON:', err));
 
 
 fetch('/static/js/countries.geojson')
