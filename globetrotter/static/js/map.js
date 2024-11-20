@@ -71,21 +71,12 @@ fetch('/cities')
     });
 
 fetch('/city-data')
-    .then(response => {
-        if (!response.ok) {
-            return response.text().then(text => {
-                throw new Error(`HTTP error! status: ${response.status}, message: ${text}`);
-            });
-        }
-        return response.json();
-    })
+    .then(response => response.json())
     .then(data => {
-        cityData = data;
-        populateCityAutocomplete(cityData.map(city => city.city));
+        cityData = data; // Assign the fetched data to cityData
     })
     .catch(error => {
         console.error('Error loading city data:', error);
-        alert('Failed to load city data: ' + error.message);
     });
 
 
