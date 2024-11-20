@@ -39,6 +39,7 @@ var cityMarkers = new L.LayerGroup().addTo(map);
 var validCities = [];
 var cityCoordinates = {};
 var cities_geojson;
+let cityData = [];
 
 // Map Pin Icons
 var visitedIcon = new L.Icon({
@@ -72,7 +73,10 @@ fetch('/cities')
 fetch('/city-data')
     .then(response => response.json())
     .then(data => {
-        cityData = data;
+        cityData = data; // Assign the fetched data to cityData
+    })
+    .catch(error => {
+        console.error('Error loading city data:', error);
     });
 
 
