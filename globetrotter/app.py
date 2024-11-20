@@ -21,11 +21,16 @@ with open("static/js/countries.geojson") as f:
 
 @app.route("/city-data", methods=["GET"])
 def get_city_data():
-    # Convert NaN values to null for valid JSON
-    city_data_json = [
-        {k: (v if v != "" else None) for k, v in row.items()} for row in city_data
-    ]
-    return jsonify(city_data_json)
+    try:
+        # Convert NaN values to null for valid JSON
+        city_data_json = [
+            {k: (v if pd.notna(v) else None) for k, v in row.items()}
+            for row in city_data
+        ]
+        return jsonify(city_data_json)
+    except Exception as e:
+        print(f"Error in get_city_data: {e}")
+        return jsonify({"error": str(e)}), 500
 
 
 # Valid countries and cities
