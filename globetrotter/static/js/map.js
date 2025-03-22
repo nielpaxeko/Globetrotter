@@ -250,8 +250,12 @@ function zoomToCity(cityName) {
 // Function to update the display of visited counts
 function updateVisitedCounts() {
     const countryCount = visitedCountries.length;
+    const wantedCount = wantToVisitCountries.length;
+    
     document.getElementById('countryCount').textContent = countryCount;
     document.getElementById('countriesVisited').style.display = countryCount > 0 ? 'block' : 'none';
+    document.getElementById('wantedCount').textContent = wantedCount;
+    document.getElementById('countriesWanted').style.display = wantedCount > 0 ? 'block' : 'none';
 
     const cityCount = visitedCities.length;
     document.getElementById('cityCount').textContent = cityCount;
@@ -442,7 +446,3 @@ function showCities() {
     document.getElementById('citySearchSection').classList.remove('hidden');
     document.getElementById('countrySearchSection').classList.add('hidden');
 }
-
-
-
-
